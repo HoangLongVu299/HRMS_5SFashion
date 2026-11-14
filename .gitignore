@@ -1,0 +1,12 @@
+# Visual Studio và tệp cấu hình theo người dùng
+.vs/
+*.user
+*.suo
+
+# Kết quả biên dịch .NET
+[Bb]in/
+[Oo]bj/
+
+# Tệp tạm của Windows và Office
+Thumbs.db
+~$*
