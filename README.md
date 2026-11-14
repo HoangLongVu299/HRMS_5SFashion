@@ -10,7 +10,7 @@
 
 [**Mở demo web HRMS 5S Fashion**](https://hrm-5s-fashion-demo.mewing-toque.workers.dev)
 
-Bản demo trực tuyến chạy trên Cloudflare và mở thẳng trang đăng nhập. Bạn có thể truy cập bằng trình duyệt mà không cần cài Visual Studio hoặc SQL Server.
+Link mở trang đăng nhập của bản demo trên Cloudflare. Bạn có thể xem trực tiếp bằng trình duyệt, không cần cài Visual Studio hoặc SQL Server.
 
 ## Chức năng
 
