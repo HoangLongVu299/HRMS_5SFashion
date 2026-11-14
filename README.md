@@ -6,6 +6,12 @@
 
 **Giảng viên hướng dẫn** — ThS. Trần Thanh Hải
 
+## Bản xem trước demo web
+
+[**Mở demo web HRMS 5S Fashion**](https://hrm-5s-fashion-demo.mewing-toque.workers.dev)
+
+Bản demo trực tuyến chạy trên Cloudflare và mở thẳng trang đăng nhập. Bạn có thể truy cập bằng trình duyệt mà không cần cài Visual Studio hoặc SQL Server.
+
 ## Chức năng
 
 - Quản lý hồ sơ nhân viên và các danh mục dùng chung.
