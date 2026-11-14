@@ -12,6 +12,11 @@
 
 Link mở trang đăng nhập của bản demo trên Cloudflare. Bạn có thể xem trực tiếp bằng trình duyệt, không cần cài Visual Studio hoặc SQL Server.
 
+**Thông tin đăng nhập demo**
+
+- **Tài khoản:** `11235624`
+- **Mật khẩu:** `001206029862`
+
 ## Chức năng
 
 - Quản lý hồ sơ nhân viên và các danh mục dùng chung.
