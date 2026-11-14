@@ -1,0 +1,58 @@
+@model EmployeeDetailsVm
+@{ViewData["Title"]="Chi tiết hồ sơ";var e=Model.Employee;}
+<div class="profile-header"><img class="portrait" src="@Url.Action("Photo",new{id=e.MANV})" alt="Ảnh nhân viên" /><div><p class="text-secondary mb-1">HỒ SƠ #@e.MANV</p><h1>@DisplayText.Value(e.HOTEN)</h1><span class="badge @DisplayText.EmploymentBadge(Model.Status)">@DisplayText.EmploymentStatus(Model.Status)</span><div class="profile-meta">@DisplayText.Value(e.Company?.TENCTY) · @DisplayText.Value(e.Department?.TENPB) · @DisplayText.Value(e.Position?.TENCV)</div><div class="mt-3 d-flex flex-wrap gap-2"><a class="btn btn-primary" asp-action="Edit" asp-route-id="@e.MANV">Sửa thông tin cá nhân</a> <a class="btn btn-outline-secondary" asp-action="Index">Quay lại danh sách</a> <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@e.MANV">Xóa hồ sơ nhập nhầm</a><a class="btn btn-outline-primary" asp-controller="Contracts" asp-action="PrintForEmployee" asp-route-employeeId="@e.MANV">In hợp đồng</a></div></div></div>
+@foreach(var warning in Model.Warnings){<div class="alert alert-warning">@warning</div>}
+<div class="profile-links">
+@if (Model.Status == "pending")
+{
+    <a class="btn btn-primary" asp-controller="Contracts" asp-action="Create" asp-route-employeeId="@e.MANV">Lập hợp đồng đầu tiên</a>
+}
+<a class="btn btn-outline-primary" asp-controller="Rewards" asp-action="Index" asp-route-employeeId="@e.MANV">Khen thưởng – Kỷ luật</a>
+<a class="btn btn-outline-primary" asp-controller="Rewards" asp-action="Create" asp-route-employeeId="@e.MANV">Thêm quyết định KT/KL</a>
+<a class="btn btn-outline-primary" asp-controller="Contracts" asp-action="Index" asp-route-employeeId="@e.MANV" asp-route-includeDeleted="true">Hợp đồng</a>
+<a class="btn btn-outline-primary" asp-controller="Transfers" asp-action="Index" asp-route-employeeId="@e.MANV" asp-route-includeDeleted="true">Điều chuyển</a>
+<a class="btn btn-outline-primary" asp-controller="Terminations" asp-action="Index" asp-route-employeeId="@e.MANV" asp-route-includeDeleted="true">Thôi việc</a>
+<a class="btn btn-outline-primary" asp-controller="History" asp-action="Index" asp-route-employeeId="@e.MANV">Tra cứu theo ngày</a>
+</div>
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item" role="presentation"><button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="true">Hồ sơ nhân viên</button></li>
+<li class="nav-item" role="presentation"><button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false">Quá trình công tác (@Model.Periods.Count đợt)</button></li>
+</ul>
+<div class="tab-content card card-body border-top-0">
+<section id="profile" class="tab-pane fade show active" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+<h2>Thông tin cá nhân</h2><dl class="row mb-0">
+<dt class="col-sm-3">Mã nhân viên</dt><dd class="col-sm-9">@e.MANV</dd>
+<dt class="col-sm-3">Ngày sinh</dt><dd class="col-sm-9">@(e.NGAYSINH?.ToString("dd/MM/yyyy") ?? "Chưa có thông tin")</dd>
+<dt class="col-sm-3">Giới tính</dt><dd class="col-sm-9">@DisplayText.Gender(e.GIOITINH)</dd>
+<dt class="col-sm-3">Số điện thoại</dt><dd class="col-sm-9">@DisplayText.Value(e.DIENTHOAI)</dd>
+<dt class="col-sm-3">CCCD</dt><dd class="col-sm-9">@DisplayText.Value(e.CCCD)</dd>
+<dt class="col-sm-3">Địa chỉ</dt><dd class="col-sm-9">@DisplayText.Value(e.DIACHI)</dd>
+</dl><h2 class="profile-section-title">Thông tin tổ chức trên hồ sơ</h2><dl class="row mb-0"><dt class="col-sm-3">Công ty trên hồ sơ</dt><dd class="col-sm-9">@DisplayText.Value(e.Company?.TENCTY)</dd>
+<dt class="col-sm-3">Phòng ban trên hồ sơ</dt><dd class="col-sm-9">@DisplayText.Value(e.Department?.TENPB)</dd>
+<dt class="col-sm-3">Bộ phận trên hồ sơ</dt><dd class="col-sm-9">@DisplayText.Value(e.Section?.TENBP)</dd>
+<dt class="col-sm-3">Chức vụ trên hồ sơ</dt><dd class="col-sm-9">@DisplayText.Value(e.Position?.TENCV)</dd>
+</dl><h2 class="profile-section-title">Thông tin bổ sung</h2><dl class="row mb-0"><dt class="col-sm-3">Trình độ</dt><dd class="col-sm-9">@DisplayText.Value(e.Education?.TENTD)</dd>
+<dt class="col-sm-3">Dân tộc</dt><dd class="col-sm-9">@DisplayText.Value(e.Ethnicity?.TENDT)</dd>
+<dt class="col-sm-3">Tôn giáo</dt><dd class="col-sm-9">@DisplayText.Value(e.Religion?.TENTG)</dd>
+</dl><p class="text-secondary mt-3">Ngày bắt đầu từng đợt làm việc nằm trong tab Quá trình công tác; không suy ra từ hợp đồng hoặc ngày tạo hồ sơ.</p>
+</section>
+<section id="history" class="tab-pane fade" role="tabpanel" aria-labelledby="history-tab" tabindex="0">
+<p class="text-secondary">Hiển thị theo thời gian tăng dần. Ngày kết thúc có hiệu lực bao gồm chính ngày đó. “Chưa ghi nhận kết thúc” phản ánh NULL, không tự khẳng định người này đang làm việc.</p>
+@if(Model.Periods.Count==0){<p>Chưa có đợt làm việc để hiển thị.</p>}
+@foreach(var period in Model.Periods){
+<article class="history-period border rounded p-3 mb-3">
+<h2>Đợt #@period.IDDOT · @DisplayText.Value(period.Company?.TENCTY)</h2>
+<p><strong>Ngày bắt đầu đợt làm việc:</strong> @DisplayText.Date(period.NGAYBATDAU) · <strong>Kết thúc:</strong> @(period.NGAYKETTHUC?.ToString("dd/MM/yyyy") ?? "Chưa ghi nhận kết thúc")</p>
+@if(!string.IsNullOrWhiteSpace(period.GHICHU)){<p>Ghi chú: @period.GHICHU</p>}
+@if(period.Histories.Count==0){<div class="alert alert-warning">Đợt này chưa có lịch sử công tác.</div>}
+else {
+<div class="table-responsive" tabindex="0" role="region" aria-label="Các giai đoạn công tác"><table class="table"><thead><tr><th>Từ ngày</th><th>Đến ngày</th><th>Phòng ban</th><th>Bộ phận</th><th>Chức vụ</th><th>Quyết định / Ghi chú</th></tr></thead><tbody>
+@foreach(var h in period.Histories.OrderBy(x=>x.TUNGAY).ThenBy(x=>x.IDLS)){
+<tr><td>@DisplayText.Date(h.TUNGAY)</td><td>@(h.DENNGAY?.ToString("dd/MM/yyyy") ?? "Chưa ghi nhận kết thúc")</td><td>@DisplayText.Value(h.Department.TENPB)</td><td>@DisplayText.Value(h.Section?.TENBP)</td><td>@DisplayText.Value(h.Position.TENCV)</td><td>@DisplayText.Value(h.SOQD_DIEUCHUYEN)<div class="small text-secondary">@h.GHICHU</div></td></tr>
+}
+</tbody></table></div>
+}
+</article>
+}
+</section>
+</div>

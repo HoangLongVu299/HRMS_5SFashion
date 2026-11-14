@@ -1,0 +1,71 @@
+@model ContractForm
+@{var original=ViewData["Original"] as string;var firstEmployment=Model.MANV is int id && Model.FirstEmploymentIds.Contains(id);ViewData["Title"]=original==null?"Thêm hợp đồng":"Sửa hợp đồng";}
+<h1>@ViewData["Title"]</h1>
+<p class="text-secondary">@(original==null ? "Chọn nhân viên và nhập thông tin hợp đồng. Hệ thống tự liên kết với lần làm việc phù hợp khi lưu." : "Công ty lấy theo đợt làm việc. Ngày hết hạn hợp đồng độc lập với ngày nghỉ thực tế.")</p>
+@if(original!=null && Model.IDDOT==null){<div class="alert alert-warning">Hợp đồng cũ thiếu đợt. Chỉ chọn đợt sau khi xác minh thực tế; có thể quay lại để giữ nguyên bản ghi.</div>}
+<form class="card card-body form-page" method="post" asp-action="@(original==null?"Create":"Edit")" asp-route-number="@original" data-personnel data-period-url="@Url.Action("Periods")" data-first-employment-ids="@string.Join(",", Model.FirstEmploymentIds)" data-contract-employees-url="@Url.Action("EmployeeChoices")" data-number-url="@Url.Action("NextNumber")" data-signing-url="@Url.Action("NextSigning")" data-number-field="SOHD" data-number-date="NGAYKY">
+<div asp-validation-summary="All" class="alert alert-danger validation-summary"></div>
+<fieldset class="form-section"><legend>Thông tin chung</legend><div class="row">
+<div class="col-md-6 mb-3"><label asp-for="SOHD" class="form-label"></label><input asp-for="SOHD" class="form-control" readonly aria-describedby="contract-number-help" /><span asp-validation-for="SOHD" class="text-danger"></span>
+@if(original==null){<div id="contract-number-help" class="form-text" data-number-status role="status">Số dự kiến theo năm của ngày ký; hệ thống xác nhận số chính thức khi lưu.</div>}
+else{<div id="contract-number-help" class="form-text">Số hợp đồng đã lưu được giữ nguyên.</div>}
+</div>
+</div></fieldset><fieldset class="form-section"><legend>Thông tin nhân viên</legend><div class="row"><div class="col-md-6 mb-3"><label asp-for="MANV" class="form-label required"></label><select asp-for="MANV" asp-items="Model.Employees" class="form-select" data-employee data-employee-search="@(original==null ? "true" : null)"><option value="">@(original==null ? "Chọn hoặc tìm kiếm" : "— Chọn —")</option></select><span asp-validation-for="MANV" class="text-danger"></span>
+@if(original==null){<div class="form-text" data-contract-employee-status role="status" aria-live="polite">@(Model.Employees.Count==0 ? "Không có nhân viên trong danh sách này." : Model.Rehire ? "Chỉ hiển thị nhân viên đã thôi việc để tiếp nhận lại." : "Chỉ hiển thị hồ sơ chờ tiếp nhận.")</div><button type="button" class="btn btn-link p-0" data-reload-contract-employees hidden>Thử tải lại danh sách</button>}
+</div>
+@if(original!=null){
+<div class="col-md-6 mb-3"><label asp-for="IDDOT" class="form-label required"></label><select asp-for="IDDOT" asp-items="Model.Periods" class="form-select" data-period><option value="">— Chọn —</option></select><span asp-validation-for="IDDOT" class="text-danger"></span></div>
+<div class="col-12 mb-3"><div class="readonly-field"><strong>Công ty theo đợt:</strong> <span data-company role="status" aria-live="polite">@(Model.CompanyName ?? "Chọn đợt để xem")</span></div></div>
+}else{
+<div class="col-12 mb-3">
+<div class="form-check"><input asp-for="Rehire" class="form-check-input" data-contract-rehire /><label asp-for="Rehire" class="form-check-label"></label></div>
+<span asp-validation-for="Rehire" class="text-danger"></span>
+<p class="form-text">Bỏ tích để chọn nhân viên chờ tiếp nhận. Tích vào để chọn nhân viên đã thôi việc quay lại làm.</p>
+</div>
+<div class="col-12" data-contract-issues hidden="@(Model.DecisionIssues.Count==0)"><details class="mb-3"><summary>Hồ sơ cần xác minh trước khi lập hợp đồng</summary><ul class="small text-secondary">@foreach(var issue in Model.DecisionIssues){<li>@issue</li>}</ul></details></div>
+<div class="col-12" data-rehire-fields hidden="@(Model.MANV == null)">
+<div class="alert alert-info" data-rehire-note hidden="@(!Model.Rehire)">Ngày bắt đầu hợp đồng bên dưới là ngày quay lại làm việc. Khi lưu, hệ thống tạo lần làm việc mới và cập nhật trạng thái đang làm; lịch sử cũ được giữ nguyên.</div>
+<div data-first-employment-fields hidden="@(!firstEmployment)">
+<p class="form-text">Ngày bắt đầu hợp đồng cũng là ngày vào làm. Hệ thống dùng ngày này để tạo đợt làm việc và lịch sử công tác đầu tiên.</p>
+</div>
+<div class="row">
+<div class="col-md-6 mb-3"><label asp-for="RehireCompanyId" class="form-label required"></label><select asp-for="RehireCompanyId" asp-items="Model.Lookups.Companies" class="form-select"><option value="">— Chọn công ty —</option></select><span asp-validation-for="RehireCompanyId" class="text-danger"></span></div>
+<div class="col-md-6 mb-3"><label asp-for="RehireDepartmentId" class="form-label required"></label><select asp-for="RehireDepartmentId" asp-items="Model.Lookups.Departments" class="form-select"><option value="">— Chọn phòng ban —</option></select><span asp-validation-for="RehireDepartmentId" class="text-danger"></span></div>
+<div class="col-md-6 mb-3"><label asp-for="RehireSectionId" class="form-label"></label><select asp-for="RehireSectionId" asp-items="Model.Lookups.Sections" class="form-select"><option value="">— Không chọn —</option></select><span asp-validation-for="RehireSectionId" class="text-danger"></span></div>
+<div class="col-md-6 mb-3"><label asp-for="RehirePositionId" class="form-label required"></label><select asp-for="RehirePositionId" asp-items="Model.Lookups.Positions" class="form-select"><option value="">— Chọn chức vụ —</option></select><span asp-validation-for="RehirePositionId" class="text-danger"></span></div>
+</div></div>
+}
+</div></fieldset><fieldset class="form-section"><legend>Nội dung hợp đồng</legend><div class="row"><div class="col-md-6 mb-3"><label asp-for="NGAYKY" class="form-label required"></label><input asp-for="NGAYKY" class="form-control" /><span asp-validation-for="NGAYKY" class="text-danger"></span></div>
+<div class="col-md-6 mb-3"><label asp-for="NGAYBATDAU" class="form-label required"></label><input asp-for="NGAYBATDAU" class="form-control" /><span asp-validation-for="NGAYBATDAU" class="text-danger"></span></div>
+@if (original == null)
+{
+    <div class="col-md-6 mb-3">
+        <label asp-for="DurationMonths" class="form-label required"></label>
+        <input asp-for="DurationMonths" type="number" min="1" step="1" required class="form-control" />
+        <span asp-validation-for="DurationMonths" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label for="contract-expiry-preview" class="form-label">Ngày hết hạn theo hợp đồng</label>
+        <input id="contract-expiry-preview" class="form-control" readonly placeholder="Tự tính theo thời hạn" />
+    </div>
+    <div class="col-md-6 mb-3">
+        <label for="contract-signing-preview" class="form-label">Lần ký</label>
+        <input id="contract-signing-preview" class="form-control" readonly placeholder="Tự tính khi chọn nhân viên" />
+        <div class="form-text">Hệ thống xác nhận lần ký khi lưu.</div>
+    </div>
+}
+else
+{
+<div class="col-md-6 mb-3"><label asp-for="NGAYKETTHUC" class="form-label"></label><input asp-for="NGAYKETTHUC" class="form-control" /><span asp-validation-for="NGAYKETTHUC" class="text-danger"></span></div>
+<div class="col-md-6 mb-3"><label asp-for="THOIHAN" class="form-label"></label><input asp-for="THOIHAN" class="form-control" /><span asp-validation-for="THOIHAN" class="text-danger"></span></div>
+<div class="col-md-6 mb-3"><label asp-for="LANKY" class="form-label required"></label><input asp-for="LANKY" class="form-control" /><span asp-validation-for="LANKY" class="text-danger"></span></div>
+}
+<div class="col-md-6 mb-3"><label asp-for="HESOLUONG" class="form-label"></label><input asp-for="HESOLUONG" class="form-control" step="any"/><span asp-validation-for="HESOLUONG" class="text-danger"></span></div>
+<div class="col-md-6 mb-3"><label asp-for="LUONGCOBAN" class="form-label"></label><input asp-for="LUONGCOBAN" class="form-control" /><span asp-validation-for="LUONGCOBAN" class="text-danger"></span></div>
+</div></fieldset><fieldset class="form-section"><legend>Nội dung hợp đồng</legend><div class="row"><div class="col-12 mb-3"><label asp-for="NOIDUNG" class="form-label"></label><textarea asp-for="NOIDUNG" class="form-control" rows="12" aria-describedby="contract-content-help"></textarea><div id="contract-content-help" class="form-text">Mẫu chung dùng cho mọi nhân viên. Những ô như {{LanKy}}, {{NgayBatDau}}, {{LuongCoBan}} sẽ tự lấy từ dữ liệu hợp đồng khi xem/in; không cần nhập lặp lại số liệu. Thông tin chưa có được để dòng chấm.</div><span asp-validation-for="NOIDUNG" class="text-danger"></span><button class="btn btn-outline-secondary btn-sm mt-2" type="button" data-reset-contract-template>Dùng mẫu hợp đồng chung</button><textarea data-default-contract-template hidden disabled>@HRMS.Web.Services.ContractDocumentTemplate.DefaultBody</textarea>@if(ViewData["PreviousContractContent"] is string previous && !string.IsNullOrWhiteSpace(previous)){<details class="mt-3"><summary>Xem nội dung đã lưu trước đây</summary><p class="form-text">Nội dung cũ chưa bị thay đổi. Bấm Lưu sẽ lưu phần nội dung đang soạn ở trên.</p><div style="white-space:pre-wrap">@previous</div></details>}</div>
+</div></fieldset><div class="form-actions"><button class="btn btn-primary" type="submit" disabled="@(original==null && Model.Employees.Count==0)">Lưu</button> <a class="btn btn-outline-secondary" asp-action="Index">Hủy</a>
+</div></form>
+@if(original!=null){<script src="~/js/personnel.js" asp-append-version="true" defer></script>}
+else{<script src="~/js/contract-create.js" asp-append-version="true" defer></script><script src="~/js/document-number.js" asp-append-version="true" defer></script>}
+
+<script src="~/js/contract-template.js" asp-append-version="true" defer></script>

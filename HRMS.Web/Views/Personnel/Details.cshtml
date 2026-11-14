@@ -1,0 +1,18 @@
+@model PersonnelDetailsVm
+@{ViewData["Title"]=Model.Title;var kind=ViewData["Kind"] as string;}
+<h1>@Model.Title · @Model.Number</h1>
+@foreach(var warning in Model.Warnings){<div class="alert alert-warning">@warning</div>}
+<dl class="row record-details">
+@foreach(var field in Model.Fields){<dt class="col-md-4">@field.Key</dt><dd class="col-md-8" style="white-space:pre-wrap">@DisplayText.Value(field.Value)</dd>}
+</dl>
+@if(kind=="Contracts" && !string.IsNullOrWhiteSpace(Model.PreviousContractContent)){
+<details class="card card-body mb-3"><summary>Nội dung đã lưu trước khi áp dụng mẫu chung</summary><p class="form-text">Bản in và phần Nội dung phía trên dùng mẫu chung có tự điền. Nội dung cũ được giữ nguyên trong dữ liệu cho đến khi bạn chủ động lưu chỉnh sửa.</p><div style="white-space:pre-wrap">@Model.PreviousContractContent</div></details>
+}
+<div class="form-actions">
+@if(kind=="Contracts"){<a class="btn btn-outline-primary" asp-action="Print" asp-route-number="@Model.Number">In hợp đồng</a>}
+@if(!Model.Deleted){<a class="btn btn-primary" asp-action="Edit" asp-route-number="@Model.Number">Sửa</a>}
+@if(kind=="Contracts" && !Model.Deleted){<a class="btn btn-outline-danger" asp-action="Delete" asp-route-number="@Model.Number">Xóa mềm</a>}
+<a class="btn btn-outline-secondary" asp-action="Index" asp-route-employeeId="@Model.EmployeeId">Quay lại</a>
+@if(Model.EmployeeId!=null){<a class="btn btn-outline-primary" asp-controller="Employees" asp-action="Details" asp-route-id="@Model.EmployeeId">Hồ sơ và quá trình công tác</a>}
+</div>
+@if(kind!="Contracts"){<div class="alert alert-info">Chỉ cho sửa lý do, ghi chú. Không cho xóa quyết định hoặc sửa trường ảnh hưởng lịch sử vì chưa hỗ trợ hoàn tác an toàn và tái tính các nghiệp vụ liên quan.</div>}

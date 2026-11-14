@@ -1,0 +1,66 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "Employees";
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
+    var menus = new[] {
+        (Controller: "Employees", Label: "Hồ sơ nhân viên", Icon: "people"),
+        (Controller: "Contracts", Label: "Hợp đồng lao động", Icon: "document"),
+        (Controller: "Transfers", Label: "Điều chuyển nhân viên", Icon: "transfer"),
+        (Controller: "Terminations", Label: "Nhân viên thôi việc", Icon: "leave"),
+        (Controller: "Rewards", Label: "Khen thưởng – Kỷ luật", Icon: "document"),
+        (Controller: "History", Label: "Tra cứu lịch sử công tác", Icon: "history")
+    };
+    var sectionLabel = controller == "Catalogs" ? "Danh mục" : menus.FirstOrDefault(x => x.Controller == controller).Label ?? "Hệ thống";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] — 5S FASHION HRM</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+<a class="skip-link" href="#main-content">Bỏ qua menu, đến nội dung</a>
+<header class="brand-banner"><span>5S FASHION</span><span class="banner-caption">QUẢN LÝ NHÂN SỰ</span></header>
+<div class="app-shell">
+    <aside class="app-sidebar" id="app-sidebar" aria-label="Menu chính">
+        <a class="side-brand" asp-controller="Employees" asp-action="Index"><strong>5S FASHION<span class="brand-dot">.</span></strong><span>Hệ thống quản lý nhân sự</span></a>
+        <div class="side-label">QUẢN LÝ NHÂN SỰ</div>
+        <nav class="side-nav" aria-label="Phân hệ nhân sự">
+        <details class="catalog-menu" open="@(controller == "Catalogs")">
+            <summary class="side-link @(controller == "Catalogs" ? "is-active" : "")">Danh mục</summary>
+            <a class="side-link @(controller == "Catalogs" && action == "Index" ? "is-active" : "")" asp-controller="Catalogs" asp-action="Index">Tổng quan danh mục</a>
+            @foreach(var catalog in CatalogDefinitions.All) {
+                var selected=controller=="Catalogs" && Context.Request.Query["kind"]==catalog.Key;
+                <a class="side-link @(selected?"is-active":"")" asp-controller="Catalogs" asp-action="List" asp-route-kind="@catalog.Key" aria-current="@(selected?"page":null)">@catalog.Title</a>
+            }
+        </details>
+        @foreach (var item in menus) {
+            <a class="side-link @(controller == item.Controller ? "is-active" : "")" asp-controller="@item.Controller" asp-action="Index" aria-current="@(controller == item.Controller ? "page" : null)" title="@item.Label">
+                <svg class="ui-icon" aria-hidden="true"><use href="@Url.Content("~/images/icons.svg")#@item.Icon"></use></svg><span>@item.Label</span>
+            </a>
+        }
+        </nav>
+        <div class="side-foot"><strong>Công ty cổ phần 5s Fashion</strong><span>Hồ sơ · Công tác · Lịch sử</span></div>
+    </aside>
+    <div class="app-main">
+        <div class="app-topbar">
+            <button class="sidebar-toggle" type="button" aria-controls="app-sidebar" aria-expanded="true" aria-label="Thu gọn menu" title="Thu gọn / mở menu" data-sidebar-toggle><svg class="ui-icon" aria-hidden="true"><use href="@Url.Content("~/images/icons.svg")#menu"></use></svg></button>
+            <nav aria-label="Đường dẫn" class="crumbs"><span>Nhân sự</span><span aria-hidden="true">/</span>
+            @if(action == "Index") { <strong aria-current="page">@sectionLabel</strong> }
+            else { <a asp-controller="@controller" asp-action="Index">@sectionLabel</a><span aria-hidden="true">/</span><strong aria-current="page">@ViewData["Title"]</strong> }
+            </nav>
+            <div class="account-tools"><span>@User.Identity?.Name</span><form asp-controller="Account" asp-action="Logout" method="post"><button class="btn btn-outline-danger btn-sm" type="submit">Đăng xuất</button></form></div>
+        </div>
+        <main id="main-content" class="page-content" tabindex="-1">
+            @if (TempData["Success"] is string success) { <div class="alert alert-success" role="status">@success</div> }
+            @RenderBody()
+        </main>
+        <footer class="app-footer">5S FASHION · Hệ thống quản lý nhân sự</footer>
+    </div>
+</div>
+<script src="~/lib/bootstrap/bootstrap.bundle.min.js" asp-append-version="true"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/js/employee-search.js" asp-append-version="true" defer></script>
+</body>
+</html>

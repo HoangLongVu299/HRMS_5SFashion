@@ -1,0 +1,47 @@
+@model ContractDocument
+@using HRMS.Web.Services
+@{Layout=null;var title="Hợp đồng - "+Model.Number;}
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><title>@title</title><link rel="stylesheet" href="~/css/contract-print.css" asp-append-version="true" /></head>
+<body>
+<nav class="print-toolbar" aria-label="Thao tác bản in"><div><strong>Hợp đồng @Model.Number</strong><span>Bản in A4 · Có thể lưu thành PDF</span></div><div class="print-actions"><button type="button" data-print-contract>In / Lưu PDF</button><a asp-action="Details" asp-route-number="@Model.Number">Quay lại hợp đồng</a></div></nav>
+<aside class="print-notes"><p>Chọn khổ A4, tỷ lệ 100% và tắt đầu trang/chân trang mặc định của trình duyệt. Các dòng chấm chưa có dữ liệu trong hệ thống, có thể bổ sung trước khi ký.</p>
+@if(Model.Warnings.Count>0){<ul>@foreach(var warning in Model.Warnings){<li>@warning</li>}</ul>}
+</aside>
+<main class="contract-document">
+<header>
+<div class="masthead"><div class="company-title">@ContractDocumentTemplate.Value(Model.CompanyName).ToUpper(System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))</div><div class="national-heading"><strong>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</strong><div>Độc lập - Tự do - Hạnh phúc</div><span class="heading-rule"></span></div></div>
+<h1>HỢP ĐỒNG LAO ĐỘNG</h1><p class="contract-number">Số: @Model.Number</p>
+@if(Model.Deleted){<p class="archived-contract">BẢN LƯU ĐÃ ĐƯỢC ĐÁNH DẤU XÓA TRONG HỆ THỐNG</p>}
+<p class="preamble">Căn cứ nhu cầu và sự thỏa thuận giữa các bên.</p>
+<p>Hôm nay, ngày @ContractDocumentTemplate.DateWords(Model.SignedOn), chúng tôi gồm:</p>
+</header>
+<section class="contract-party" aria-labelledby="employer-heading"><h2 id="employer-heading">Bên A: Người sử dụng lao động</h2>
+<p><strong>Công ty:</strong> @ContractDocumentTemplate.Value(Model.CompanyName)</p>
+<p><strong>Mã số thuế:</strong> @ContractDocumentTemplate.Blank</p>
+<p><strong>Địa chỉ:</strong> @ContractDocumentTemplate.Value(Model.CompanyAddress)</p>
+<p class="two-fields"><span><strong>Điện thoại:</strong> @ContractDocumentTemplate.Value(Model.CompanyPhone)</span><span><strong>Email:</strong> @ContractDocumentTemplate.Value(Model.CompanyEmail)</span></p>
+<p><strong>Đại diện:</strong> @ContractDocumentTemplate.Blank <span class="field-gap"><strong>Chức vụ:</strong> @ContractDocumentTemplate.Blank</span></p>
+</section>
+<section class="contract-party" aria-labelledby="employee-heading"><h2 id="employee-heading">Bên B: Người lao động</h2>
+<p class="two-fields"><span><strong>Họ và tên:</strong> @ContractDocumentTemplate.Value(Model.EmployeeName)</span><span><strong>Giới tính:</strong> @ContractDocumentTemplate.Value(Model.Gender)</span></p>
+<p class="two-fields"><span><strong>Sinh ngày:</strong> @ContractDocumentTemplate.Value(Model.BirthDate)</span><span><strong>Quốc tịch:</strong> @ContractDocumentTemplate.Blank</span></p>
+<p><strong>CCCD/CMND số:</strong> @ContractDocumentTemplate.Value(Model.IdentityNumber)</p>
+<p><strong>Ngày cấp:</strong> @ContractDocumentTemplate.Blank <span class="field-gap"><strong>Nơi cấp:</strong> @ContractDocumentTemplate.Blank</span></p>
+<p><strong>Địa chỉ:</strong> @ContractDocumentTemplate.Value(Model.EmployeeAddress)</p>
+<p><strong>Điện thoại:</strong> @ContractDocumentTemplate.Value(Model.EmployeePhone)</p>
+<p><strong>Đơn vị công tác:</strong> @ContractDocumentTemplate.Value(Model.Department)@if(!string.IsNullOrWhiteSpace(Model.Section)){<span> - @Model.Section</span>}</p>
+</section>
+<p class="agreement">Cùng thỏa thuận ký kết hợp đồng lao động và cam kết thực hiện các điều khoản sau đây:</p>
+<section class="contract-clauses" aria-label="Nội dung hợp đồng">
+@foreach(var raw in Model.Body.ReplaceLineEndings("\n").Split('\n')){
+    var line=raw.TrimEnd();
+    if(string.IsNullOrWhiteSpace(line)){continue;}
+    if(line.StartsWith("Điều ",StringComparison.Ordinal)){<h2>@line</h2>}
+    else if(System.Text.RegularExpressions.Regex.IsMatch(line,@"^\d+\.\s")){<h3>@line</h3>}
+    else{<p class="@(line.StartsWith("-")?"clause":"clause-continuation")">@line</p>}
+}
+</section>
+<footer class="contract-signatures"><div><strong>NGƯỜI LAO ĐỘNG</strong><em>(Ký, ghi rõ họ tên)</em><div class="signature-space"></div><span>@ContractDocumentTemplate.Value(Model.EmployeeName)</span></div><div><strong>NGƯỜI SỬ DỤNG LAO ĐỘNG</strong><em>(Ký, ghi rõ họ tên và đóng dấu nếu có)</em><div class="signature-space"></div><span>@ContractDocumentTemplate.Blank</span></div></footer>
+</main>
+<script src="~/js/contract-print.js" asp-append-version="true" defer></script></body></html>

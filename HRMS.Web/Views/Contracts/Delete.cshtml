@@ -1,0 +1,7 @@
+@model PersonnelDetailsVm
+@{ViewData["Title"]="Xác nhận xóa mềm hợp đồng";}
+<h1>@ViewData["Title"]</h1><p>Hợp đồng <strong>@Model.Number</strong>. Xóa mềm chỉ đánh dấu hợp đồng, không xóa đợt hoặc thay đổi lịch sử công tác.</p>
+<form class="card card-body form-page" method="post" asp-action="Delete" asp-route-number="@Model.Number"><div asp-validation-summary="All" class="text-danger"></div>
+<h2>Xác nhận thao tác</h2><div class="form-actions">
+@if(!Model.Deleted){<button class="btn btn-danger" type="submit">Xác nhận xóa mềm</button>}else{<p>Hợp đồng đã xóa mềm.</p>}
+<a class="btn btn-outline-secondary" asp-action="Details" asp-route-number="@Model.Number">Hủy</a></div></form>

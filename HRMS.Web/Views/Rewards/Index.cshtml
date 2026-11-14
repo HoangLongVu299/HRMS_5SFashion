@@ -1,0 +1,36 @@
+@model RewardListVm
+@using HRMS.Web.Services
+@{ViewData["Title"]="Khen thưởng – Kỷ luật";}
+<div class="page-heading"><div><h1>Khen thưởng – Kỷ luật</h1><p>@Model.Total quyết định phù hợp bộ lọc</p></div><div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-outline-primary" asp-action="PrintList" target="_blank" rel="noopener"
+       asp-route-search="@Model.Search" asp-route-type="@Model.Type" asp-route-employeeId="@Model.EmployeeId"
+       asp-route-from="@(Model.From?.ToString("yyyy-MM-dd"))" asp-route-to="@(Model.To?.ToString("yyyy-MM-dd"))">In danh sách</a>
+    <a class="btn btn-primary" asp-action="Create" asp-route-employeeId="@Model.EmployeeId">Thêm quyết định</a>
+</div></div>
+<div asp-validation-summary="All" class="alert alert-danger"></div>
+<form method="get" class="card card-body mb-3"><div class="row g-3">
+<div class="col-md-6"><label asp-for="Search" class="form-label">Số quyết định, mã hoặc tên nhân viên</label><input asp-for="Search" class="form-control" maxlength="100" /></div>
+<div class="col-md-3"><label asp-for="Type" class="form-label">Loại quyết định</label><select asp-for="Type" asp-items="RewardTypes.Filters()" class="form-select"></select></div>
+<div class="col-md-3"><label asp-for="EmployeeId" class="form-label">Nhân viên</label><select asp-for="EmployeeId" asp-items="Model.Employees" class="form-select"><option value="">Tất cả nhân viên</option></select></div>
+<div class="col-md-3"><label asp-for="From" class="form-label">Ngày quyết định từ</label><input asp-for="From" class="form-control" type="date" /></div>
+<div class="col-md-3"><label asp-for="To" class="form-label">Ngày quyết định đến</label><input asp-for="To" class="form-control" type="date" /></div>
+<div class="col-md-6 d-flex align-items-end gap-3 flex-wrap"><div class="form-check"><input asp-for="IncludeDeleted" class="form-check-input" /><label asp-for="IncludeDeleted" class="form-check-label">Xem thêm bản ghi đã xóa mềm</label></div><button class="btn btn-primary" type="submit">Tìm kiếm</button><a class="btn btn-outline-secondary" asp-action="Index">Xóa lọc</a></div>
+</div></form>
+@if(Model.EmployeeId.HasValue) {<p><a asp-controller="Employees" asp-action="Details" asp-route-id="@Model.EmployeeId">← Về hồ sơ nhân viên #@Model.EmployeeId</a></p>}
+@if(Model.Rows.Count==0 && ViewData.ModelState.IsValid) {<div class="card card-body">Không có quyết định phù hợp. Thử thay đổi bộ lọc hoặc bật xem bản ghi đã xóa mềm.</div>}
+else if(Model.Rows.Count>0) {
+<div class="card"><div class="table-responsive" tabindex="0" role="region" aria-label="Danh sách quyết định"><table class="table mb-0"><thead><tr><th>Số quyết định</th><th>Nhân viên</th><th>Loại</th><th>Ngày quyết định</th><th>Lý do</th>@if(Model.IncludeDeleted){<th>Trạng thái bản ghi</th>}<th>Thao tác</th></tr></thead><tbody>
+@foreach(var d in Model.Rows) {
+<tr><td><a asp-action="Details" asp-route-number="@d.SOQUYETDINH">@d.SOQUYETDINH</a></td><td>@(d.MANV?.ToString()??"Chưa có mã") – @DisplayText.Value(d.Employee?.HOTEN) @if(d.Employee?.DATHOIVIEC==true){<span class="badge text-bg-secondary">Đã thôi việc</span>}</td><td><span class="badge @RewardTypes.Badge(d.LOAI)">@RewardTypes.Label(d.LOAI)</span></td><td>@(d.NGAY?.ToString("dd/MM/yyyy")??"Chưa có thông tin")</td><td class="decision-reason">@DisplayText.Value(d.LYDO)</td>
+@if(Model.IncludeDeleted){<td>@(RewardDecisionService.Deleted(d)?"Đã xóa mềm":"Chưa xóa")</td>}
+<td><div class="d-flex gap-2"><a asp-action="Details" asp-route-number="@d.SOQUYETDINH">Xem</a>@if(!RewardDecisionService.Deleted(d)){<a asp-action="Edit" asp-route-number="@d.SOQUYETDINH">Sửa</a><a class="text-danger" asp-action="Delete" asp-route-number="@d.SOQUYETDINH">Xóa</a>}</div></td></tr>
+}
+</tbody></table></div></div>
+}
+@if(Model.Pages>1) {
+<nav class="d-flex align-items-center gap-2 mt-3" aria-label="Phân trang quyết định">
+@foreach(var pageNumber in new[]{Model.Page-1,Model.Page+1}) {
+if(pageNumber>=1 && pageNumber<=Model.Pages) {<a class="btn btn-outline-secondary" asp-action="Index" asp-route-page="@(pageNumber)" asp-route-search="@Model.Search" asp-route-type="@Model.Type" asp-route-employeeId="@Model.EmployeeId" asp-route-from="@(Model.From?.ToString("yyyy-MM-dd"))" asp-route-to="@(Model.To?.ToString("yyyy-MM-dd"))" asp-route-includeDeleted="@Model.IncludeDeleted">@(pageNumber<Model.Page?"Trước":"Sau")</a>}
+}
+<span>Trang @Model.Page / @Model.Pages</span></nav>
+}

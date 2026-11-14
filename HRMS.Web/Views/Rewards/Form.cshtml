@@ -1,0 +1,22 @@
+@model RewardForm
+@using HRMS.Web.Services
+@{ViewData["Title"]=Model.IsEdit?"Sửa quyết định":"Thêm quyết định";var original=ViewData["OriginalNumber"] as string ?? Model.Number;}
+<h1>@ViewData["Title"]</h1>
+<div class="card card-body">
+<p class="text-secondary">@(Model.IsEdit ? "Chỉnh sửa nội dung quyết định đã lưu và giữ nguyên thông tin lịch sử." : "Chỉ lập quyết định mới cho nhân viên đang làm việc. Chọn loại quyết định để hệ thống tự tạo số.")</p>
+@if(Model.IsEdit && !RewardTypes.IsKnown(Model.Type)){<div class="alert alert-warning">Loại dữ liệu cũ: Chưa xác định (giá trị @(Model.Type?.ToString()??"NULL")). Chọn loại đúng trước khi lưu; mở form không thay đổi dữ liệu.</div>}
+<form method="post" asp-action="@(Model.IsEdit?"Edit":"Create")" asp-route-key="@(Model.IsEdit?original:null)" data-number-url="@Url.Action("NextNumber")" data-number-field="Number" data-number-date="DecisionDate" data-number-type="Type">
+<div asp-validation-summary="All" class="alert alert-danger"></div><input asp-for="Version" type="hidden" />
+<div class="row g-3">
+<div class="col-md-6"><label asp-for="Number" class="form-label"></label><input asp-for="Number" class="form-control" readonly maxlength="50" placeholder="Chọn loại quyết định để tạo số" /><span asp-validation-for="Number" class="text-danger"></span>@if(!Model.IsEdit){<div class="form-text" data-number-status role="status">Số dự kiến theo loại và năm của ngày quyết định; hệ thống xác nhận số chính thức khi lưu.</div>}</div>
+<div class="col-md-6"><label asp-for="EmployeeId" class="form-label required"></label><select asp-for="EmployeeId" asp-items="Model.Employees" class="form-select" required data-employee-search="@(!Model.IsEdit ? "true" : null)"><option value="">@(Model.IsEdit ? "Chọn nhân viên" : "Chọn hoặc tìm kiếm")</option></select><span asp-validation-for="EmployeeId" class="text-danger"></span></div>
+<div class="col-md-6"><label asp-for="Type" class="form-label required"></label><select asp-for="Type" asp-items="RewardTypes.Options()" class="form-select" required><option value="">Chọn loại quyết định</option>@if(Model.Type.HasValue && !RewardTypes.IsKnown(Model.Type)){<option value="@Model.Type">Chưa xác định (@Model.Type)</option>}</select><span asp-validation-for="Type" class="text-danger"></span></div>
+<div class="col-md-6"><label asp-for="DecisionDate" class="@(Model.IsEdit?"form-label":"form-label required")"></label><input asp-for="DecisionDate" class="form-control" type="date" min="1753-01-01" required="@(!Model.IsEdit)" /><span asp-validation-for="DecisionDate" class="text-danger"></span></div>
+<div class="col-12"><label asp-for="Reason" class="@(Model.IsEdit?"form-label":"form-label required")"></label><textarea asp-for="Reason" class="form-control" rows="2" maxlength="200" required="@(!Model.IsEdit)"></textarea><span asp-validation-for="Reason" class="text-danger"></span></div>
+<div class="col-12"><label asp-for="Content" class="form-label"></label><textarea asp-for="Content" class="form-control" rows="4" maxlength="500"></textarea><span asp-validation-for="Content" class="text-danger"></span></div>
+</div>
+<p class="small text-secondary mt-3">Nhân viên là bắt buộc. Khi thêm mới, nhập loại, ngày quyết định và lý do; số quyết định được tự tạo.</p>
+<div class="d-flex gap-2 mt-3"><button type="submit" class="btn btn-primary">Lưu quyết định</button>@if(Model.IsEdit){<a class="btn btn-outline-secondary" asp-action="Details" asp-route-number="@original">Hủy</a>}else{<a class="btn btn-outline-secondary" asp-action="Index" asp-route-employeeId="@Model.EmployeeId">Hủy</a>}</div>
+</form></div>
+
+@if(!Model.IsEdit){<script src="~/js/document-number.js" asp-append-version="true" defer></script>}

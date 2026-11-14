@@ -1,0 +1,10 @@
+@model CatalogDetailVm
+<dl class="row mb-0 long-text">
+<dt class="col-sm-3">Mã</dt><dd class="col-sm-9">@Model.Row.Id</dd>
+<dt class="col-sm-3">Tên</dt><dd class="col-sm-9">@DisplayText.Value(Model.Row.Name)</dd>
+@if(Model.Definition.Key=="companies") {
+<dt class="col-sm-3">Điện thoại</dt><dd class="col-sm-9">@DisplayText.Value(Model.Row.Phone)</dd>
+<dt class="col-sm-3">Email</dt><dd class="col-sm-9">@DisplayText.Value(Model.Row.Email)</dd>
+<dt class="col-sm-3">Địa chỉ</dt><dd class="col-sm-9">@DisplayText.Value(Model.Row.Address)</dd>
+}
+</dl>

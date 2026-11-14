@@ -1,0 +1,56 @@
+@model HistoryVm
+@{
+    ViewData["Title"] = "Tra cứu lịch sử công tác";
+    var route = new Dictionary<string, string?>
+    {
+        ["From"] = Model.From?.ToString("yyyy-MM-dd"),
+        ["To"] = Model.To?.ToString("yyyy-MM-dd"),
+        ["EmployeeId"] = Model.EmployeeId?.ToString(),
+        ["CompanyId"] = Model.CompanyId?.ToString(),
+        ["DepartmentId"] = Model.DepartmentId?.ToString(),
+        ["Search"] = Model.Search,
+        ["WholeRange"] = Model.WholeRange.ToString()
+    };
+}
+<div class="page-heading">
+    <div>
+        <h1>@ViewData["Title"]</h1>
+        <p>Tra cứu theo đợt và lịch sử công tác, gồm cả người hiện đã nghỉ việc.</p>
+    </div>
+    @if (ViewData.ModelState.IsValid)
+    {
+        <a class="btn btn-outline-primary" asp-action="PrintList" asp-all-route-data="route" target="_blank" rel="noopener">In danh sách</a>
+    }
+</div>
+<details class="search-panel" open><summary>Thông tin tìm kiếm</summary>
+<form method="get" asp-action="Index"><div asp-validation-summary="All" class="text-danger"></div><div class="row g-3">
+<div class="col-md-4"><label asp-for="From" class="form-label required"></label><input asp-for="From" class="form-control" /></div>
+<div class="col-md-4"><label asp-for="To" class="form-label"></label><input asp-for="To" class="form-control" /></div>
+<div class="col-md-4"><label asp-for="Search" class="form-label"></label><input asp-for="Search" class="form-control" /></div>
+<div class="col-md-4"><label asp-for="EmployeeId" class="form-label"></label><select asp-for="EmployeeId" asp-items="Model.Employees" class="form-select"><option value="">Tất cả nhân viên</option></select></div>
+<div class="col-md-4"><label asp-for="CompanyId" class="form-label"></label><select asp-for="CompanyId" asp-items="Model.Lookups.Companies" class="form-select"><option value="">Tất cả công ty</option></select></div>
+<div class="col-md-4"><label asp-for="DepartmentId" class="form-label"></label><select asp-for="DepartmentId" asp-items="Model.Lookups.Departments" class="form-select"><option value="">Tất cả phòng ban</option></select></div>
+<div class="col-12"><label><input asp-for="WholeRange" class="form-check-input" /> Làm trọn khoảng trong một đợt</label></div>
+</div><div class="mt-3"><button class="btn btn-primary">Tra cứu</button> <a asp-action="Index" class="btn btn-outline-secondary">Bỏ bộ lọc</a></div></form></details>
+<section class="results-panel" aria-label="Kết quả tra cứu"><div class="result-heading"><h2>Kết quả tra cứu lịch sử công tác</h2><span class="result-count">@Model.Total dòng đợt/giai đoạn</span></div><p class="result-note">Một nhân viên có thể có nhiều dòng khi đổi phòng ban. Kết quả gồm cả người đã nghỉ việc.</p>
+<div class="table-responsive" tabindex="0" role="region" aria-label="Bảng kết quả, cuộn ngang để xem đầy đủ"><table class="table table-striped"><thead><tr><th>Nhân viên</th><th>Đợt / Công ty</th><th>Phòng ban / Bộ phận</th><th>Chức vụ</th><th>Khoảng giai đoạn gốc</th><th>Thao tác</th></tr></thead><tbody>
+@foreach(var row in Model.Rows){
+<tr><td>@row.EmployeeId – @row.Name</td><td>#@row.PeriodId · @row.Company<div class="small">@row.PeriodRange</div></td>
+<td>@DisplayText.Value(row.Department)<div class="small">@DisplayText.Value(row.Section)</div></td><td>@DisplayText.Value(row.Position)</td>
+<td>
+    @if (row.HistoryRange is { } range)
+    {
+        <span>@range</span>
+    }
+    @if (row.HistoryWarning is { } warning)
+    {
+        <div class="@(row.HistoryId.HasValue ? "text-danger" : "text-warning-emphasis")">@warning</div>
+    }
+</td><td><a class="btn btn-sm btn-outline-primary" title="Xem hồ sơ và lịch sử" asp-controller="Employees" asp-action="Details" asp-route-id="@row.EmployeeId">Xem hồ sơ</a></td></tr>
+}
+@if(Model.Rows.Count==0){<tr><td colspan="6">Không có nhân sự phù hợp khoảng ngày và bộ lọc.</td></tr>}
+</tbody></table></div></section>
+<nav aria-label="Phân trang" class="d-flex gap-2"><span class="page-indicator">Trang @Model.Page / @Model.Pages</span>
+@if(Model.Page>1){route["Page"]=(Model.Page-1).ToString();<a asp-action="Index" asp-all-route-data="route" class="btn btn-outline-primary">Trang trước</a>}
+@if(Model.Page<Model.Pages){route["Page"]=(Model.Page+1).ToString();<a asp-action="Index" asp-all-route-data="route" class="btn btn-outline-primary">Trang sau</a>}
+</nav>

@@ -1,0 +1,8 @@
+@{ Layout = "_LoginLayout"; ViewData["Title"]="Thông báo"; }
+<main class="login-page"><section class="login-form-panel" style="background:white;border-radius:18px;max-width:600px">
+<h1>Thông báo</h1><p>@ViewData["Message"]</p>
+<a asp-controller="Employees" asp-action="Index">Quay lại hệ thống</a>
+@if (User.Identity?.IsAuthenticated == true) {
+<form asp-controller="Account" asp-action="Logout" method="post"><button class="login-submit" type="submit">Đăng xuất</button></form>
+}
+</section></main>

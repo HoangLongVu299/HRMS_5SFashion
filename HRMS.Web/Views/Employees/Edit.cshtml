@@ -1,0 +1,10 @@
+@model PersonalForm
+@{ViewData["Title"]="Sửa thông tin cá nhân";}
+<h1>Sửa thông tin cá nhân · #@Model.EmployeeId</h1>
+<div class="alert alert-info"><strong>Thông tin chỉ đọc:</strong><p>@Model.OrganizationSummary</p>Công ty, phòng ban, bộ phận, chức vụ và trạng thái cần được xử lý bằng nghiệp vụ điều chuyển/thôi việc/tái tuyển dụng. Điều chuyển và thôi việc nằm ở các menu riêng; tái tuyển dụng chưa được hỗ trợ. Hồ sơ thiếu lịch sử cũng không được sửa tổ chức tùy ý.</div>
+@if(ViewData["Warnings"] is List<string> warnings){foreach(var warning in warnings){<div class="alert alert-warning">@warning</div>}}
+<form method="post" enctype="multipart/form-data" asp-action="Edit" asp-route-id="@Model.EmployeeId" class="card card-body form-page" data-save-form>
+<div asp-validation-summary="All" class="alert alert-danger validation-summary"></div>
+<fieldset class="form-section"><legend>Thông tin chung</legend><partial name="_PersonalFields" model="Model" /></fieldset>
+<div class="form-actions"><button class="btn btn-primary" type="submit">Lưu</button><a class="btn btn-outline-secondary" asp-action="Details" asp-route-id="@Model.EmployeeId">Hủy</a><a class="btn btn-link" asp-action="Index">Quay lại danh sách</a></div>
+</form>

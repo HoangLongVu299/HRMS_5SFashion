@@ -1,0 +1,27 @@
+@model TerminationForm
+@{ViewData["Title"]="Lập quyết định thôi việc";}
+<h1>@ViewData["Title"]</h1><p>Chỉ nhận ngày nghỉ đến hôm nay. Hồ sơ, hợp đồng và lịch sử được giữ lại để tra cứu.</p>
+<form class="card card-body form-page" method="post" asp-action="Create" data-current-employment data-info-url="@Url.Action("CurrentEmployment")" data-number-url="@Url.Action("NextNumber")" data-number-field="SOQD" data-number-date="NGAYNGHI">
+@if (Model.Employees.Count == 0)
+{
+    <div class="alert alert-warning" role="status">Không có nhân viên đủ điều kiện lập quyết định mới. Kiểm tra đợt làm việc và các dữ liệu mâu thuẫn nếu có.</div>
+}
+@if (Model.DecisionIssues.Count > 0)
+{
+    <div class="alert alert-warning" role="status"><strong>Các hồ sơ cần kiểm tra trước khi lập quyết định mới:</strong><ul class="mb-0">
+    @foreach (var issue in Model.DecisionIssues) { <li>@issue</li> }
+    </ul></div>
+}
+<div class="alert alert-warning" data-eligibility-warning role="status" hidden="@(string.IsNullOrEmpty(Model.EligibilityWarning))">@Model.EligibilityWarning</div>
+<p class="small text-secondary">Chỉ chọn nhân viên đang có đợt làm việc mở hợp lệ tại hôm nay. Hệ thống tự xác định lần làm việc hiện tại khi lưu.</p>
+<div asp-validation-summary="All" class="alert alert-danger validation-summary"></div>
+<fieldset class="form-section"><legend>Thông tin chung</legend><div class="row"><div class="col-md-6 mb-3"><label asp-for="SOQD" class="form-label"></label><input asp-for="SOQD" class="form-control" readonly aria-describedby="termination-number-help" /><span asp-validation-for="SOQD" class="text-danger"></span><div id="termination-number-help" class="form-text" data-number-status role="status">Số dự kiến theo năm của ngày nghỉ; hệ thống xác nhận số chính thức khi lưu.</div></div>
+</div></fieldset><fieldset class="form-section"><legend>Thông tin nhân viên</legend><div class="row"><div class="col-md-6 mb-3"><label asp-for="MANV" class="form-label required"></label><select asp-for="MANV" asp-items="Model.Employees" class="form-select" data-employee data-employee-search="true"><option value="">Chọn hoặc tìm kiếm</option></select><span asp-validation-for="MANV" class="text-danger"></span></div>
+<div class="col-12 mb-3"><div class="readonly-field"><strong>Công ty:</strong> <span data-company role="status" aria-live="polite">@(Model.CompanyName ?? "Chọn nhân viên để xem")</span></div></div>
+</div></fieldset><fieldset class="form-section"><legend>Nội dung thôi việc</legend><div class="row"><div class="col-md-6 mb-3"><label asp-for="NGAYNOPDON" class="form-label required"></label><input asp-for="NGAYNOPDON" class="form-control" /><span asp-validation-for="NGAYNOPDON" class="text-danger"></span></div>
+<div class="col-md-6 mb-3"><label asp-for="NGAYNGHI" class="form-label required"></label><input asp-for="NGAYNGHI" class="form-control" aria-describedby="leave-help"/><span asp-validation-for="NGAYNGHI" class="text-danger"></span></div>
+<p id="leave-help" class="text-primary">Ngày nghỉ là ngày đầu tiên không còn làm việc. Ví dụ nghỉ 01/09/2026: đợt và lịch sử cuối kết thúc 31/08/2026.</p></div></fieldset><fieldset class="form-section"><legend>Lý do và ghi chú</legend><div class="row"><div class="col-12 mb-3"><label asp-for="LYDO" class="form-label"></label><textarea asp-for="LYDO" class="form-control" rows="3"></textarea><span asp-validation-for="LYDO" class="text-danger"></span></div>
+<div class="col-12 mb-3"><label asp-for="GHICHU" class="form-label"></label><textarea asp-for="GHICHU" class="form-control" rows="3"></textarea><span asp-validation-for="GHICHU" class="text-danger"></span></div>
+</div></fieldset><div class="form-actions"><button class="btn btn-primary" type="submit" disabled="@(Model.Employees.Count == 0)">Lưu</button> <a class="btn btn-outline-secondary" asp-action="Index">Hủy</a>
+</div></form><script src="~/js/current-decision.js" asp-append-version="true" defer></script>
+<script src="~/js/document-number.js" asp-append-version="true" defer></script>

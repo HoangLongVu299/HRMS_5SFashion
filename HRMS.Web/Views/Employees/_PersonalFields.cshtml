@@ -1,0 +1,18 @@
+@model PersonalForm
+@{
+    var isCreate = Model is EmployeeCreateForm;
+    var requiredLabel = isCreate ? "form-label required" : "form-label";
+}
+<div class="row g-3">
+    <div class="col-md-6"><label asp-for="HOTEN" class="form-label required"></label><input asp-for="HOTEN" class="form-control" maxlength="50" /><span asp-validation-for="HOTEN" class="text-danger"></span></div>
+    <div class="col-md-3"><label asp-for="NGAYSINH" class="@requiredLabel"></label><input asp-for="NGAYSINH" asp-format="{0:yyyy-MM-dd}" type="date" class="form-control" required="@isCreate" /><span asp-validation-for="NGAYSINH" class="text-danger"></span></div>
+    <div class="col-md-3"><label asp-for="GIOITINH" class="@requiredLabel"></label><select asp-for="GIOITINH" class="form-select" required="@isCreate"><option value="">@(isCreate ? "Chọn giới tính" : "Chưa xác định")</option><option value="true">Nam</option><option value="false">Nữ</option></select><span asp-validation-for="GIOITINH" class="text-danger"></span></div>
+    <div class="col-md-6"><label asp-for="DIENTHOAI" class="@requiredLabel"></label><input asp-for="DIENTHOAI" class="form-control" maxlength="50" required="@isCreate" /><span asp-validation-for="DIENTHOAI" class="text-danger"></span></div>
+    <div class="col-md-6"><label asp-for="CCCD" class="@requiredLabel"></label><input asp-for="CCCD" class="form-control" maxlength="50" required="@isCreate" /><span asp-validation-for="CCCD" class="text-danger"></span></div>
+    <div class="col-12"><label asp-for="DIACHI" class="form-label"></label><textarea asp-for="DIACHI" class="form-control" maxlength="300" rows="2"></textarea><span asp-validation-for="DIACHI" class="text-danger"></span></div>
+    <div class="col-md-4"><label asp-for="IDTD" class="@requiredLabel"></label><select asp-for="IDTD" asp-items="Model.Lookups.Educations" class="form-select" required="@isCreate"><option value="">@(isCreate ? "Chọn trình độ" : "Chưa có thông tin")</option></select><span asp-validation-for="IDTD" class="text-danger"></span></div>
+    <div class="col-md-4"><label asp-for="IDDT" class="form-label"></label><select asp-for="IDDT" asp-items="Model.Lookups.Ethnicities" class="form-select"><option value="">Chưa có thông tin</option></select><span asp-validation-for="IDDT" class="text-danger"></span></div>
+    <div class="col-md-4"><label asp-for="IDTG" class="form-label"></label><select asp-for="IDTG" asp-items="Model.Lookups.Religions" class="form-select"><option value="">Chưa có thông tin</option></select><span asp-validation-for="IDTG" class="text-danger"></span></div>
+    <div class="col-md-8"><label asp-for="Photo" class="form-label"></label><input asp-for="Photo" type="file" accept=".jpg,.jpeg,.png" class="form-control" /><span asp-validation-for="Photo" class="text-danger"></span><div class="form-text">PNG/JPEG tối đa 2 MB, mỗi chiều tối đa 6000 pixel, tối đa 16 triệu pixel. Khi form lỗi, cần chọn lại tệp.</div></div>
+    @if(Model.EmployeeId!=null){<div class="col-md-4"><img class="portrait mb-2" src="@Url.Action("Photo",new{id=Model.EmployeeId})" alt="Ảnh nhân viên hiện tại" /><div class="form-check"><input asp-for="RemovePhoto" class="form-check-input" /><label asp-for="RemovePhoto" class="form-check-label"></label></div></div>}
+</div>

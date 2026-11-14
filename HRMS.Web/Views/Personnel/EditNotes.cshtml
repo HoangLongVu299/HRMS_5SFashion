@@ -1,0 +1,9 @@
+@model DecisionNotesForm
+@{ViewData["Title"]="Sửa lý do và ghi chú";var number=ViewData["Number"] as string;}
+<h1>@ViewData["Title"] · @number</h1>
+<div class="alert alert-info">Nhân viên, đợt, ngày và thông tin tổ chức đã khóa sau khi áp dụng. Chưa hỗ trợ hoàn tác và tái tính toàn bộ lịch sử. Sửa ghi chú ở đây chỉ sửa ghi chú quyết định.</div>
+<form class="card card-body form-page" method="post" asp-action="Edit" asp-route-number="@number">
+<div asp-validation-summary="All" class="alert alert-danger validation-summary"></div>
+<fieldset class="form-section"><legend>Lý do và ghi chú</legend><div class="row"><div class="col-12 mb-3"><label asp-for="LYDO" class="form-label"></label><textarea asp-for="LYDO" class="form-control" rows="3"></textarea><span asp-validation-for="LYDO" class="text-danger"></span></div>
+<div class="col-12 mb-3"><label asp-for="GHICHU" class="form-label"></label><textarea asp-for="GHICHU" class="form-control" rows="3"></textarea><span asp-validation-for="GHICHU" class="text-danger"></span></div>
+</div></fieldset><div class="form-actions"><button class="btn btn-primary" type="submit">Lưu</button> <a class="btn btn-outline-secondary" asp-action="Details" asp-route-number="@number">Hủy</a></div></form>

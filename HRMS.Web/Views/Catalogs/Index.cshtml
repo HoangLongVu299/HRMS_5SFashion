@@ -1,0 +1,9 @@
+@model List<CatalogCard>
+@{ ViewData["Title"]="Danh mục"; }
+<div class="page-heading"><div><h1>Danh mục</h1><p class="text-secondary">Tra cứu dữ liệu dùng chung của hệ thống nhân sự.</p></div></div>
+<div asp-validation-summary="All" class="alert alert-danger"></div>
+<div class="row g-3">
+@foreach(var card in Model) {
+<div class="col-sm-6 col-xl-3"><a class="card card-body catalog-card" asp-action="List" asp-route-kind="@card.Definition.Key"><h2>@card.Definition.Title</h2><strong class="fs-2">@card.Count</strong><span>bản ghi · Xem danh sách →</span></a></div>
+}
+</div>

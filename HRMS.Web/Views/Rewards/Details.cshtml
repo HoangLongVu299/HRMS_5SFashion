@@ -1,0 +1,21 @@
+@model RewardDecision
+@using HRMS.Web.Services
+@{ViewData["Title"]="Chi tiết quyết định";var deleted=RewardDecisionService.Deleted(Model);}
+<h1>Quyết định @Model.SOQUYETDINH</h1>
+@if(TempData["Notice"] is string notice){<div class="alert alert-warning">@notice</div>}
+@if(deleted){<div class="alert alert-warning">Bản ghi đã xóa mềm — chỉ đọc, không tính vào danh sách quyết định chưa xóa.</div>}
+<div class="card card-body"><dl class="row long-text">
+<dt class="col-sm-3">Nhân viên</dt><dd class="col-sm-9">@(Model.MANV?.ToString()??"Chưa có mã") – @DisplayText.Value(Model.Employee?.HOTEN) @if(Model.Employee!=null){<a asp-controller="Employees" asp-action="Details" asp-route-id="@Model.MANV">Xem hồ sơ</a> <span class="badge text-bg-secondary">@DisplayText.Status(Model.Employee.DATHOIVIEC)</span>}</dd>
+<dt class="col-sm-3">Loại quyết định</dt><dd class="col-sm-9"><span class="badge @RewardTypes.Badge(Model.LOAI)">@RewardTypes.Label(Model.LOAI)</span>@if(!RewardTypes.IsKnown(Model.LOAI)){<span> (giá trị gốc: @(Model.LOAI?.ToString()??"NULL"))</span>}</dd>
+<dt class="col-sm-3">Ngày quyết định</dt><dd class="col-sm-9">@(Model.NGAY?.ToString("dd/MM/yyyy")??"Chưa có thông tin")</dd>
+<dt class="col-sm-3">Lý do</dt><dd class="col-sm-9">@DisplayText.Value(Model.LYDO)</dd>
+<dt class="col-sm-3">Nội dung</dt><dd class="col-sm-9">@DisplayText.Value(Model.NOIDUNG)</dd>
+@if(Model.TUNGAY!=null || Model.DENNGAY!=null){
+<dt class="col-sm-3">Từ ngày (dữ liệu cũ)</dt><dd class="col-sm-9">@(Model.TUNGAY?.ToString("dd/MM/yyyy")??"Chưa có thông tin")</dd>
+<dt class="col-sm-3">Đến ngày (dữ liệu cũ)</dt><dd class="col-sm-9">@(Model.DENNGAY?.ToString("dd/MM/yyyy")??"Chưa có thông tin")</dd>
+}
+
+<dt class="col-sm-3">Tạo lúc / mã người tạo</dt><dd class="col-sm-9">@(Model.CREATE_DATE?.ToString("dd/MM/yyyy HH:mm:ss")??"Chưa ghi nhận") / @(Model.CREATE_BY?.ToString()??"Chưa ghi nhận")</dd>
+<dt class="col-sm-3">Sửa lúc / mã người sửa</dt><dd class="col-sm-9">@(Model.UPDATE_DATE?.ToString("dd/MM/yyyy HH:mm:ss")??"Chưa ghi nhận") / @(Model.UPDATE_BY?.ToString()??"Chưa ghi nhận")</dd>
+@if(deleted){<dt class="col-sm-3">Xóa lúc / mã người xóa</dt><dd class="col-sm-9">@(Model.DELETE_DATE?.ToString("dd/MM/yyyy HH:mm:ss")??"Chưa ghi nhận") / @(Model.DELETE_BY?.ToString()??"Chưa ghi nhận")</dd>}
+</dl><div class="d-flex flex-wrap gap-2">@if(!deleted){<a class="btn btn-primary" asp-action="Edit" asp-route-number="@Model.SOQUYETDINH">Sửa quyết định</a><a class="btn btn-outline-danger" asp-action="Delete" asp-route-number="@Model.SOQUYETDINH">Xóa mềm</a>}<a class="btn btn-outline-secondary" asp-action="Index" asp-route-includeDeleted="@deleted">Về danh sách</a></div></div>

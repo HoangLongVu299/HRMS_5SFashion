@@ -1,0 +1,11 @@
+@model EmployeeContractPrintList
+@{ViewData["Title"]="Chọn hợp đồng để in";}
+<h1>In hợp đồng</h1><p>Nhân viên #@Model.EmployeeId - @Model.EmployeeName</p>
+@if(Model.Contracts.Count==0){<div class="card card-body"><p>Nhân viên chưa có hợp đồng chưa xóa để in. Bạn có thể kiểm tra lại danh sách hợp đồng.</p></div>}
+else{
+<p>Nhân viên có nhiều hợp đồng. Chọn đúng số hợp đồng và thời gian cần in.</p>
+<div class="card table-responsive"><table class="table mb-0"><thead><tr><th>Số hợp đồng</th><th>Công ty</th><th>Ngày ký</th><th>Ngày bắt đầu</th><th>Ngày hết hạn</th><th>Thao tác</th></tr></thead><tbody>
+@foreach(var c in Model.Contracts){<tr><td>@c.Number</td><td>@c.Company</td><td>@(c.SignedOn?.ToString("dd/MM/yyyy")??"Chưa có thông tin")</td><td>@(c.Start?.ToString("dd/MM/yyyy")??"Chưa có thông tin")</td><td>@(c.End?.ToString("dd/MM/yyyy")??"Chưa ghi nhận hạn")</td><td><a class="btn btn-outline-primary btn-sm" asp-action="Print" asp-route-number="@c.Number">In hợp đồng</a></td></tr>}
+</tbody></table></div>
+}
+<div class="form-actions mt-3"><a class="btn btn-outline-secondary" asp-controller="Employees" asp-action="Details" asp-route-id="@Model.EmployeeId">Quay lại hồ sơ</a><a class="btn btn-outline-primary" asp-action="Index" asp-route-employeeId="@Model.EmployeeId" asp-route-includeDeleted="true">Xem tất cả hợp đồng</a></div>

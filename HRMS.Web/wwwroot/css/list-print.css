@@ -1,0 +1,123 @@
+@page {
+    size: A4 landscape;
+    margin: 12mm;
+}
+
+body {
+    margin: 0;
+    color: #20242a;
+    background: #f1f2f4;
+    font: 14px/1.4 Arial, sans-serif;
+}
+
+.print-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .8rem max(1rem, calc((100% - 1100px) / 2));
+    background: white;
+    border-bottom: 1px solid #d7dadd;
+}
+
+.print-toolbar button {
+    padding: .6rem 1rem;
+    border: 0;
+    border-radius: .4rem;
+    background: #b81c16;
+    color: white;
+    font: inherit;
+    cursor: pointer;
+}
+
+.print-sheet {
+    box-sizing: border-box;
+    max-width: 1100px;
+    margin: 1.5rem auto;
+    padding: 1.8rem;
+    background: white;
+}
+
+.company {
+    margin: 0;
+    font-weight: bold;
+}
+
+h1, .summary, .empty {
+    text-align: center;
+}
+
+h1 {
+    margin: 1.25rem 0 .25rem;
+    font-size: 1.65em;
+    text-transform: uppercase;
+}
+
+.print-subtitle {
+    margin: 0 0 .3rem;
+    font-size: .95em;
+    text-align: center;
+}
+
+.summary {
+    margin: 0 0 1.2rem;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: .4rem .5rem;
+    border: 1px solid #777;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+}
+
+th {
+    background: #edf0f3;
+    text-align: left;
+}
+
+td {
+    white-space: pre-line;
+}
+
+.print-single-line {
+    white-space: nowrap;
+    overflow-wrap: normal;
+}
+
+.print-row-number {
+    width: 1%;
+    text-align: center;
+}
+
+.signature {
+    width: 12rem;
+    margin: 1rem 0 0 auto;
+    min-height: 5rem;
+    text-align: center;
+    break-inside: avoid;
+}
+
+.signature span {
+    display: block;
+    font-style: italic;
+}
+
+@media print {
+    body { background: white; font-size: 10pt; color: black; }
+    .print-toolbar { display: none; }
+    .print-sheet { max-width: none; margin: 0; padding: 0; }
+    .table-wrap { overflow: visible; }
+    thead { display: table-header-group; }
+    th, td { padding: .3rem .4rem; }
+    tr { break-inside: avoid; }
+    h1, .print-subtitle, .summary { break-after: avoid; }
+}

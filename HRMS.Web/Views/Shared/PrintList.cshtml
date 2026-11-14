@@ -1,0 +1,76 @@
+@model PrintListVm
+@{ Layout = null; }
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@Model.Title</title>
+    <link rel="stylesheet" href="~/css/list-print.css" asp-append-version="true" />
+    <script defer src="~/js/list-print.js" asp-append-version="true"></script>
+</head>
+<body>
+    <nav class="print-toolbar" aria-label="Thao tác bản in">
+        <span>Bản xem trước · A4 ngang</span>
+        @if (Model.Rows.Count > 0)
+        {
+            <button type="button" id="print-list">In / Lưu PDF</button>
+        }
+    </nav>
+    <main class="print-sheet">
+        <header>
+            <p class="company">CÔNG TY CỔ PHẦN 5S FASHION</p>
+            <h1>@Model.Title</h1>
+            @if (Model.Subtitle is { } subtitle)
+            {
+                <p class="print-subtitle">(@subtitle)</p>
+            }
+            <p class="summary">Ngày in @DateTime.Today.ToString("dd/MM/yyyy") · @Model.Rows.Count bản ghi</p>
+        </header>
+
+        @if (Model.Rows.Count == 0)
+        {
+            <p class="empty">Không có dữ liệu phù hợp với bộ lọc để in.</p>
+        }
+        else
+        {
+            <div class="table-wrap">
+                <table aria-label="@Model.Title">
+                    <thead>
+                        <tr>
+                            @if (Model.ShowRowNumbers)
+                            {
+                                <th scope="col" class="print-single-line print-row-number">STT</th>
+                            }
+                            @foreach (var column in Model.Columns)
+                            {
+                                <th scope="col" class="@(column.SingleLine ? "print-single-line" : null)">@column.Heading</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var rowIndex = 0; rowIndex < Model.Rows.Count; rowIndex++)
+                        {
+                            var row = Model.Rows[rowIndex];
+                            <tr>
+                                @if (Model.ShowRowNumbers)
+                                {
+                                    <td class="print-single-line print-row-number">@(rowIndex + 1)</td>
+                                }
+                                @for (var columnIndex = 0; columnIndex < row.Length; columnIndex++)
+                                {
+                                    <td class="@(Model.Columns[columnIndex].SingleLine ? "print-single-line" : null)">@DisplayText.Value(row[columnIndex])</td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <footer class="signature">
+                <strong>Người lập</strong>
+                <span>(Ký và ghi rõ họ tên)</span>
+            </footer>
+        }
+    </main>
+</body>
+</html>

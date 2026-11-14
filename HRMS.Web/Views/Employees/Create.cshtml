@@ -1,0 +1,8 @@
+@model EmployeeCreateForm
+@{ViewData["Title"]="Thêm nhân viên";}
+<h1>Thêm nhân viên</h1><p class="text-secondary">Mã nhân viên được tự sinh khi lưu. Hồ sơ mới ở trạng thái Chờ tiếp nhận.</p>
+<form method="post" enctype="multipart/form-data" asp-action="Create" class="card card-body form-page" data-save-form>
+<div asp-validation-summary="All" class="alert alert-danger validation-summary"></div>
+<fieldset class="form-section"><legend>Thông tin chung</legend><partial name="_PersonalFields" model="Model" />
+</fieldset><div class="form-actions"><button class="btn btn-primary" type="submit">Lưu</button><a class="btn btn-outline-secondary" asp-action="Index">Hủy</a><a class="btn btn-link" asp-action="Index">Quay lại danh sách</a></div>
+</form>

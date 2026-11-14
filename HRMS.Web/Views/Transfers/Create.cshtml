@@ -1,0 +1,29 @@
+@model TransferForm
+@{ViewData["Title"]="Lập quyết định điều chuyển";}
+<h1>@ViewData["Title"]</h1><p>Điều chuyển nội bộ trong cùng công ty và đợt làm việc. Chỉ nhận ngày hiệu lực đến hôm nay.</p>
+<form class="card card-body form-page" method="post" asp-action="Create" data-current-employment data-info-url="@Url.Action("CurrentEmployment")" data-number-url="@Url.Action("NextNumber")" data-number-field="SOQD" data-number-date="NGAY">
+@if (Model.Employees.Count == 0)
+{
+    <div class="alert alert-warning" role="status">Không có nhân viên đủ điều kiện lập quyết định mới. Kiểm tra đợt làm việc và các dữ liệu mâu thuẫn nếu có.</div>
+}
+@if (Model.DecisionIssues.Count > 0)
+{
+    <div class="alert alert-warning" role="status"><strong>Các hồ sơ cần kiểm tra trước khi lập quyết định mới:</strong><ul class="mb-0">
+    @foreach (var issue in Model.DecisionIssues) { <li>@issue</li> }
+    </ul></div>
+}
+<div class="alert alert-warning" data-eligibility-warning role="status" hidden="@(string.IsNullOrEmpty(Model.EligibilityWarning))">@Model.EligibilityWarning</div>
+<p class="small text-secondary">Chỉ chọn nhân viên đang có đợt làm việc mở hợp lệ tại hôm nay. Hệ thống tự xác định lần làm việc hiện tại khi lưu.</p>
+<div asp-validation-summary="All" class="alert alert-danger validation-summary"></div>
+<fieldset class="form-section"><legend>Thông tin chung</legend><div class="row"><div class="col-md-6 mb-3"><label asp-for="SOQD" class="form-label"></label><input asp-for="SOQD" class="form-control" readonly aria-describedby="transfer-number-help" /><span asp-validation-for="SOQD" class="text-danger"></span><div id="transfer-number-help" class="form-text" data-number-status role="status">Số dự kiến theo năm của ngày quyết định; hệ thống xác nhận số chính thức khi lưu.</div></div>
+</div></fieldset><fieldset class="form-section"><legend>Thông tin nhân viên</legend><div class="row"><div class="col-md-6 mb-3"><label asp-for="MANV" class="form-label required"></label><select asp-for="MANV" asp-items="Model.Employees" class="form-select" data-employee data-employee-search="true"><option value="">Chọn hoặc tìm kiếm</option></select><span asp-validation-for="MANV" class="text-danger"></span></div>
+<div class="col-12 mb-3"><div class="readonly-field"><strong>Công ty:</strong> <span data-company role="status" aria-live="polite">@(Model.CompanyName ?? "Chọn nhân viên để xem")</span></div></div>
+</div></fieldset><fieldset class="form-section"><legend>Nội dung điều chuyển</legend><div class="row"><div class="col-md-6 mb-3"><label asp-for="NGAY" class="form-label required"></label><input asp-for="NGAY" class="form-control" /><span asp-validation-for="NGAY" class="text-danger"></span></div>
+<div class="col-md-6 mb-3"><label asp-for="NGAYHIEULUC" class="form-label required"></label><input asp-for="NGAYHIEULUC" class="form-control" /><span asp-validation-for="NGAYHIEULUC" class="text-danger"></span></div>
+<div class="col-12 mb-3"><div class="readonly-field"><strong>Phòng ban cũ tại ngày hiệu lực:</strong> <span data-old-department role="status" aria-live="polite">Chọn nhân viên và ngày hiệu lực để xem.</span><p class="small text-secondary">Khi lưu, hệ thống đọc lại lịch sử để xác định phòng ban cũ.</p></div></div><div class="col-md-6 mb-3"><label asp-for="MAPB2" class="form-label required"></label><select asp-for="MAPB2" asp-items="Model.Lookups.Departments" class="form-select" ><option value="">— Chọn —</option></select><span asp-validation-for="MAPB2" class="text-danger"></span></div>
+<div class="col-md-6 mb-3"><label asp-for="IDBP" class="form-label"></label><select asp-for="IDBP" asp-items="Model.Lookups.Sections" class="form-select" ><option value="">— Chọn —</option></select><span asp-validation-for="IDBP" class="text-danger"></span></div>
+<div class="col-md-6 mb-3"><label asp-for="IDCV" class="form-label required"></label><select asp-for="IDCV" asp-items="Model.Lookups.Positions" class="form-select" ><option value="">— Chọn —</option></select><span asp-validation-for="IDCV" class="text-danger"></span></div>
+</div></fieldset><fieldset class="form-section"><legend>Lý do và ghi chú</legend><div class="row"><div class="col-12 mb-3"><label asp-for="LYDO" class="form-label"></label><textarea asp-for="LYDO" class="form-control" rows="3"></textarea><span asp-validation-for="LYDO" class="text-danger"></span></div>
+<div class="col-12 mb-3"><label asp-for="GHICHU" class="form-label"></label><textarea asp-for="GHICHU" class="form-control" rows="3"></textarea><span asp-validation-for="GHICHU" class="text-danger"></span></div>
+</div></fieldset><div class="form-actions"><button class="btn btn-primary" type="submit" disabled="@(Model.Employees.Count == 0)">Lưu</button> <a class="btn btn-outline-secondary" asp-action="Index">Hủy</a>
+</div></form><script src="~/js/current-decision.js" asp-append-version="true" defer></script><script src="~/js/document-number.js" asp-append-version="true" defer></script>

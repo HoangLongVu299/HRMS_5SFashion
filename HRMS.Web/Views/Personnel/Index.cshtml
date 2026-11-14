@@ -1,0 +1,54 @@
+@model PersonnelListVm
+@{
+    ViewData["Title"] = Model.Title;
+    var kind = ViewData["Kind"] as string;
+    var createLabel = kind switch
+    {
+        "Contracts" => "Lập hợp đồng",
+        "Transfers" or "Terminations" => "Thêm quyết định",
+        _ => "Thêm mới"
+    };
+}
+<div class="page-heading"><div><h1>@Model.Title</h1><p>Theo dõi văn bản và thông tin nhân sự theo từng đợt làm việc.</p></div>
+@if (kind == "Terminations")
+{
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-primary" asp-action="PrintList" target="_blank" rel="noopener"
+           asp-route-search="@Model.Search" asp-route-employeeId="@Model.EmployeeId" asp-route-companyId="@Model.CompanyId"
+           asp-route-from="@(Model.From?.ToString("yyyy-MM-dd"))" asp-route-to="@(Model.To?.ToString("yyyy-MM-dd"))">In danh sách</a>
+        <a class="btn btn-primary" asp-action="Create" asp-route-employeeId="@Model.EmployeeId">@createLabel</a>
+    </div>
+}
+else
+{
+    <a class="btn btn-primary" asp-action="Create" asp-route-employeeId="@Model.EmployeeId">@createLabel</a>
+}
+</div>
+<details class="search-panel" open><summary>Thông tin tìm kiếm</summary>
+<form method="get" asp-action="Index">
+<div asp-validation-summary="All" class="text-danger"></div><div class="row g-3">
+<div class="col-md-4"><label asp-for="Search" class="form-label">Tìm số văn bản, mã hoặc tên nhân viên</label><input asp-for="Search" class="form-control" /></div>
+<div class="col-md-4"><label asp-for="EmployeeId" class="form-label">Nhân viên</label><select asp-for="EmployeeId" asp-items="Model.Employees" class="form-select"><option value="">Tất cả nhân viên</option></select></div>
+<div class="col-md-4"><label asp-for="CompanyId" class="form-label">Công ty</label><select asp-for="CompanyId" asp-items="Model.Lookups.Companies" class="form-select"><option value="">Tất cả công ty</option></select></div>
+<div class="col-md-4"><label asp-for="From" class="form-label">@Model.DateLabel — từ</label><input asp-for="From" class="form-control" /></div>
+<div class="col-md-4"><label asp-for="To" class="form-label">Đến ngày</label><input asp-for="To" class="form-control" /></div>
+<div class="col-md-4 align-self-end"><label><input asp-for="IncludeDeleted" class="form-check-input" /> Gồm bản ghi có dấu xóa mềm</label></div>
+</div><div class="mt-3"><button class="btn btn-primary">Tìm kiếm</button> <a class="btn btn-outline-secondary" asp-action="Index">Bỏ bộ lọc</a></div></form></details>
+<section class="results-panel" aria-label="Kết quả tìm kiếm"><div class="result-heading"><h2>Danh sách văn bản</h2><span class="result-count">@Model.Total bản ghi</span></div>
+<p class="result-note">Phòng ban/chức vụ lấy từ lịch sử tại thời điểm văn bản (với thôi việc: ngày làm việc cuối). Dữ liệu thiếu liên kết vẫn được hiển thị khi không lọc theo liên kết đó.</p>
+@if(kind=="Contracts"){<p class="result-note">Số hợp đồng tính theo năm của ngày ký. Danh sách sắp xếp theo ngày ký từ cũ đến mới.</p>}
+<div class="table-responsive" tabindex="0" role="region" aria-label="Bảng kết quả, cuộn ngang để xem đầy đủ"><table class="table table-striped align-middle"><thead><tr><th>Số văn bản</th><th>Nhân viên</th><th>Công ty / Đợt</th><th>Phòng ban / Chức vụ</th>@if(kind=="Contracts"){<th>Ngày ký</th>}<th>@Model.DateLabel</th><th>Thao tác</th></tr></thead><tbody>
+@foreach(var row in Model.Rows){
+<tr><td>@row.Number @if(row.Deleted){<span class="badge text-bg-secondary">Đã xóa mềm</span>}</td>
+<td>@row.EmployeeId – @DisplayText.Value(row.EmployeeName)</td><td>@DisplayText.Value(row.Company)<div class="small">@(row.PeriodId==null?"Thiếu liên kết đợt":"Đợt #"+row.PeriodId)</div></td>
+<td>@DisplayText.Value(row.Department)<div class="small">@DisplayText.Value(row.Position)</div></td>@if(kind=="Contracts"){<td>@(row.SignedOn?.ToString("dd/MM/yyyy") ?? "Chưa ghi nhận")</td>}<td>@(row.Date?.ToString("dd/MM/yyyy") ?? "Chưa ghi nhận")</td>
+<td><div class="table-actions"><a title="Xem văn bản" aria-label="Xem văn bản @row.Number" class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-number="@row.Number">Xem</a>
+@if(kind=="Contracts"){<a title="In hợp đồng" class="btn btn-sm btn-outline-primary" asp-action="Print" asp-route-number="@row.Number">In</a>}
+@if(!row.Deleted){<a title="Sửa văn bản" aria-label="Sửa văn bản @row.Number" class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-number="@row.Number">Sửa</a>}</div></td></tr>
+}
+@if(Model.Rows.Count==0){<tr><td colspan="@(kind=="Contracts" ? 7 : 6)">Không có bản ghi phù hợp.</td></tr>}
+</tbody></table></div></section>
+<nav aria-label="Phân trang"><span class="page-indicator">Trang @Model.Page / @Model.Pages</span><div class="d-flex gap-2">
+@if(Model.Page>1){<a class="btn btn-outline-primary" href="@Url.Action("Index",new {Model.Search,Model.EmployeeId,Model.CompanyId,From=Model.From?.ToString("yyyy-MM-dd"),To=Model.To?.ToString("yyyy-MM-dd"),Model.IncludeDeleted,Page=Model.Page-1})">Trang trước</a>}
+@if(Model.Page<Model.Pages){<a class="btn btn-outline-primary" href="@Url.Action("Index",new {Model.Search,Model.EmployeeId,Model.CompanyId,From=Model.From?.ToString("yyyy-MM-dd"),To=Model.To?.ToString("yyyy-MM-dd"),Model.IncludeDeleted,Page=Model.Page+1})">Trang sau</a>}
+</div></nav>

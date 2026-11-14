@@ -1,0 +1,35 @@
+@model EmployeeListVm
+@{ViewData["Title"]="Danh sách nhân viên";}
+<div class="page-heading"><div><h1>Danh sách nhân viên</h1><p class="text-secondary">@Model.Total hồ sơ · Tìm kiếm và tra cứu thông tin nhân sự</p></div><div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-outline-primary" asp-action="PrintList" target="_blank" rel="noopener"
+       asp-route-search="@Model.Search" asp-route-companyId="@Model.CompanyId" asp-route-departmentId="@Model.DepartmentId"
+       asp-route-positionId="@Model.PositionId" asp-route-status="@Model.Status">In danh sách</a>
+    <a class="btn btn-primary" asp-action="Create">+ Thêm nhân viên</a>
+</div></div>
+<details class="search-panel" open><summary>Thông tin tìm kiếm</summary>
+<form method="get" asp-action="Index">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="row g-3">
+        <div class="col-lg-4"><label asp-for="Search" class="form-label">Tìm kiếm</label><input asp-for="Search" class="form-control" placeholder="Mã, họ tên, CCCD, số điện thoại" maxlength="100" /></div>
+        <div class="col-lg-2"><label asp-for="CompanyId" class="form-label">Công ty</label><select asp-for="CompanyId" asp-items="Model.Lookups.Companies" class="form-select"><option value="">Tất cả</option></select></div>
+        <div class="col-lg-2"><label asp-for="DepartmentId" class="form-label">Phòng ban</label><select asp-for="DepartmentId" asp-items="Model.Lookups.Departments" class="form-select"><option value="">Tất cả</option></select></div>
+        <div class="col-lg-2"><label asp-for="PositionId" class="form-label">Chức vụ</label><select asp-for="PositionId" asp-items="Model.Lookups.Positions" class="form-select"><option value="">Tất cả</option></select></div>
+        <div class="col-lg-2"><label asp-for="Status" class="form-label">Trạng thái</label><select asp-for="Status" class="form-select"><option value="">Tất cả</option><option value="working">Đang làm việc</option><option value="left">Đã thôi việc</option><option value="pending">Chờ tiếp nhận</option><option value="scheduled">Chờ vào làm</option></select></div>
+    </div>
+    <div class="mt-3"><button class="btn btn-primary" type="submit">Tìm kiếm</button> <a class="btn btn-outline-secondary" asp-action="Index">Bỏ bộ lọc</a></div>
+</form></details>
+<section class="results-panel" aria-label="Kết quả tìm kiếm"><div class="result-heading"><h2>Danh sách hồ sơ</h2><span class="result-count">@Model.Total hồ sơ</span></div><div class="table-responsive" tabindex="0" role="region" aria-label="Danh sách nhân viên, cuộn ngang để xem đầy đủ"><table class="table table-hover align-middle mb-0">
+<thead><tr><th>Mã</th><th>Họ tên</th><th>Liên hệ</th><th>Công ty</th><th>Phòng ban / Bộ phận</th><th>Chức vụ</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+<tbody>
+@foreach(var row in Model.Rows) {
+<tr><td>@row.Id</td><td><a asp-action="Details" asp-route-id="@row.Id">@DisplayText.Value(row.Name)</a>@if(row.MissingHistory){<div class="small text-warning-emphasis">Thiếu dữ liệu lịch sử</div>}</td><td>@DisplayText.Value(row.Phone)<div class="small text-secondary">CCCD: @DisplayText.Value(row.Identity)</div></td><td>@DisplayText.Value(row.Company)</td><td>@DisplayText.Value(row.Department)<div class="small text-secondary">@DisplayText.Value(row.Section)</div></td><td>@DisplayText.Value(row.Position)</td><td><span class="badge @DisplayText.EmploymentBadge(row.Status)">@DisplayText.EmploymentStatus(row.Status)</span></td><td><div class="table-actions"><a class="btn btn-sm btn-outline-primary" title="Xem hồ sơ" aria-label="Xem hồ sơ @row.Name" asp-action="Details" asp-route-id="@row.Id">Xem</a> <a class="btn btn-sm btn-outline-secondary" title="Sửa hồ sơ" aria-label="Sửa hồ sơ @row.Name" asp-action="Edit" asp-route-id="@row.Id">Sửa</a> <a class="btn btn-sm btn-outline-danger" title="Xóa hồ sơ nhập nhầm" aria-label="Xóa hồ sơ @row.Name" asp-action="Delete" asp-route-id="@row.Id">Xóa</a></div></td></tr>
+}
+@if(Model.Rows.Count==0){<tr><td colspan="8" class="text-center p-4">Không có hồ sơ phù hợp.</td></tr>}
+</tbody></table></div></section>
+<nav aria-label="Phân trang">
+    <span class="page-indicator">Trang @Model.Page / @Model.Pages</span>
+    <div class="d-flex gap-2">
+        @if(Model.Page>1){<a class="btn btn-outline-primary" asp-action="Index" asp-route-Page="@(Model.Page-1)" asp-route-Search="@Model.Search" asp-route-CompanyId="@Model.CompanyId" asp-route-DepartmentId="@Model.DepartmentId" asp-route-PositionId="@Model.PositionId" asp-route-Status="@Model.Status">Trang trước</a>}
+        @if(Model.Page<Model.Pages){<a class="btn btn-outline-primary" asp-action="Index" asp-route-Page="@(Model.Page+1)" asp-route-Search="@Model.Search" asp-route-CompanyId="@Model.CompanyId" asp-route-DepartmentId="@Model.DepartmentId" asp-route-PositionId="@Model.PositionId" asp-route-Status="@Model.Status">Trang sau</a>}
+    </div>
+</nav>
